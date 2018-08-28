@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,6 +22,7 @@ namespace ProjectEasy
 
         public int filas = 0;
         public string[] listaimg = new string[1500];
+        List<string> getAllNotePadFiles;
         Microsoft.Office.Interop.Excel.Application xlapp = new Microsoft.Office.Interop.Excel.Application();
         Worksheet ws;
         private void btnopen_Click(object sender, EventArgs e)
@@ -234,33 +236,40 @@ namespace ProjectEasy
 
             if (filas > 0)
             {
-
                 Range[] lista = new Range[filas];
                 Range range2 = ws.Range["E1", $"E{filas}"];
                 Range[] lista2 = new Range[filas];
-                for (int i = 0; i <= listaimg.Length; i++)
+                //for (int i = 0; i <= listaimg.Length; i++)
+                //{
+                for (int j = 1; j <= filas; j++)
                 {
-                    for (int j = 1; j <= filas; j++)
-                    {
-                        try
-                        {
-                            if (System.IO.Path.GetFileNameWithoutExtension(listaimg[i]) == ws.Range[$"C{j}"].Text)
-                            {
-                                Console.WriteLine("uno");
-                                Microsoft.Office.Interop.Excel.Range oRange = (Microsoft.Office.Interop.Excel.Range)ws.Cells[j, 5];
-                                float Left = (float)((double)oRange.Left);
-                                float Top = (float)((double)oRange.Top);
-                                const float ImageSize = 32;
-                                ws.Shapes.AddPicture(listaimg[i], Microsoft.Office.Core.MsoTriState.msoFalse, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, 70, 90);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
 
-                            MessageBox.Show("Error: " + ex.Message);
-                            break;
+                    //var test = from getAllNotePadFiles 
+                    //         Contains(ws.Range[$"C{j}"].Text+".jpg");
+
+                    var n = getAllNotePadFiles.Where(file => file.Contains(ws.Range[$"C{j}"].Text)).ToList();
+
+
+                    try
+                    {
+                        if (n.Count > 0)
+                        {
+                            Console.WriteLine(n[0]);
+                            Console.WriteLine("uno");
+                            Microsoft.Office.Interop.Excel.Range oRange = (Microsoft.Office.Interop.Excel.Range)ws.Cells[j, 5];
+                            float Left = (float)((double)oRange.Left);
+                            float Top = (float)((double)oRange.Top);
+                            const float ImageSize = 32;
+                            ws.Shapes.AddPicture(n[0], Microsoft.Office.Core.MsoTriState.msoFalse, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, 70, 90);
                         }
                     }
+                    catch (Exception ex)
+                    {
+
+                        MessageBox.Show("Error: " + ex.Message);
+                        break;
+                    }
+
                 }
                 //Microsoft.Office.Interop.Excel.Range oRange = (Microsoft.Office.Interop.Excel.Range)ws.Cells[3, 5];
                 //float Left = (float)((double)oRange.Left);
@@ -297,34 +306,47 @@ namespace ProjectEasy
                             Console.WriteLine(popo);
                             h += 1;
                         }
+
+                        getAllNotePadFiles = dir.GetFiles("*.jpg", SearchOption.AllDirectories)
+                                            .Where(file => file.Name.Contains(".jpg"))
+                                            .Select(file => file.FullName).ToList();
+
                         Range[] lista = new Range[filas];
                         Range range2 = ws.Range["E1", $"E{filas}"];
                         Range[] lista2 = new Range[filas];
-                        for (int i = 0; i <= listaimg.Length; i++)
+                        //for (int i = 0; i <= listaimg.Length; i++)
+                        //{
+                        for (int j = 1; j <= filas; j++)
                         {
-                            for (int j = 1; j <= filas; j++)
+
+                            //var test = from getAllNotePadFiles 
+                            //         Contains(ws.Range[$"C{j}"].Text+".jpg");
+
+                            var n = getAllNotePadFiles.Where(file => file.Contains(ws.Range[$"C{j}"].Text)).ToList();
+
+
+                            try
                             {
-                                try
+                                if (n.Count > 0)
                                 {
-                                    if (System.IO.Path.GetFileNameWithoutExtension(listaimg[i]) == ws.Range[$"C{j}"].Text)
-                                    {
-                                        Console.WriteLine("uno");
-                                        Microsoft.Office.Interop.Excel.Range oRange = (Microsoft.Office.Interop.Excel.Range)ws.Cells[j, 5];
-                                        float Left = (float)((double)oRange.Left);
-                                        float Top = (float)((double)oRange.Top);
-                                        const float ImageSize = 32;
-                                        ws.Shapes.AddPicture(listaimg[i], Microsoft.Office.Core.MsoTriState.msoFalse, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, 70, 90);
-                                    }
+                                    Console.WriteLine(n[0]);
+                                    Console.WriteLine("uno");
+                                    Microsoft.Office.Interop.Excel.Range oRange = (Microsoft.Office.Interop.Excel.Range)ws.Cells[j, 5];
+                                    float Left = (float)((double)oRange.Left);
+                                    float Top = (float)((double)oRange.Top);
+                                    const float ImageSize = 32;
+                                    ws.Shapes.AddPicture(n[0], Microsoft.Office.Core.MsoTriState.msoFalse, Microsoft.Office.Core.MsoTriState.msoCTrue, Left, Top, 70, 90);
                                 }
-                                catch (Exception ex)
-                                {
-
-                                    MessageBox.Show("Error: " + ex.Message);
-                                    break;
-                                }
-
                             }
+                            catch (Exception ex)
+                            {
+
+                                MessageBox.Show("Error: " + ex.Message);
+                                break;
+                            }
+
                         }
+                        //}
                         //System.Windows.Forms.MessageBox.Show("Files found: " + files.Length.ToString(), "Message");
                     }
                 }
